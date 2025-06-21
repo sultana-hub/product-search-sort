@@ -16,8 +16,6 @@ const normalizeArray = (value) =>
 
 
 
-
-
 const MainPage = ({ filters }) => {
 
     const navigate = useNavigate();
@@ -39,11 +37,7 @@ const MainPage = ({ filters }) => {
 
     // Flatten all loaded pages
     const allProducts = data?.pages.flatMap(page => page?.products || []) || [];
-
     console.log("All products before filtering:", allProducts);
-
-
-
 
 
     // Apply filter
@@ -132,11 +126,7 @@ const MainPage = ({ filters }) => {
 
     const productList = keyword ? searchdata?.data || [] : filteredProducts;
 
-  
-
-
     console.log("Final Filtered Products:", filteredProducts);
-
 
     // UI starts here
     if (isLoading) {

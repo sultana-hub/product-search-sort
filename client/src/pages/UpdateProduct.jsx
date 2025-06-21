@@ -12,7 +12,7 @@ const UpdateProduct = () => {
 
     const { register, handleSubmit, formState: { errors }, reset, setValue } = useForm();
     const [previewImage, setPreviewImage] = useState(null);
-
+    const [extraImages, setExtraImages] = useState(null)
     const { data: productData, isLoading } = useQuery({
         queryKey: ['product', id],
         queryFn: () => getSingleProduct(id),
@@ -30,7 +30,9 @@ const UpdateProduct = () => {
                 productSize: product.productSize?.join(', '),
                 productPrice: product.productPrice,
             });
-            setPreviewImage(product.image); // assuming `image` is a URL or relative path
+            setPreviewImage(product.image);
+
+            setExtraImages(product.productImages);
         }
     }, [product, reset]);
 
@@ -67,6 +69,13 @@ const UpdateProduct = () => {
         if (data?.image && data?.image[0]) {
             formData.append('image', data.image[0]);
         }
+        // multiple images
+        if (data?.productImages && data?.productImages?.length > 0) {
+            for (let i = 0; i < data?.productImages?.length; i++) {
+                formData.append('productImages', data.productImages[i]);
+            }
+        }
+
 
         mutate({ id, data: formData });
     };
@@ -167,13 +176,77 @@ const UpdateProduct = () => {
                 />
 
                 {/* Image Upload Field */}
+                <Box sx={{ mt: 2 }}>
+                    <Typography variant="body2" sx={{ mt: 2 }}>
+                        Product Image
+                    </Typography>
+                    <input
+                        type="file"
+                        accept="image/*"
+                        {...register('image', {
+                            required: 'Image Required'
+                        })}
+                        style={{ display: 'block' }}
 
+                    />
+                    {errors?.image && (
+                        <Typography variant="caption" color="error">
+                            {errors?.image?.message}
+                        </Typography>
+                    )}
+                </Box>
 
-                <input
-                    type="file"
-                    accept="image/*"
-                    {...register('image')}
-                />
+                {/* preview if main image  */}
+                {previewImage && (
+                    <Box sx={{ mt: 2 }}>
+                        <Typography variant="body2">Main Image Preview</Typography>
+                        <img
+                            src={`http://localhost:3005/${previewImage.replace(/\\/g, '/')}`}
+                            alt="Main Preview"
+                            style={{ width: '100%', maxWidth: 200, borderRadius: 8 }}
+                        />
+                    </Box>
+                )}
+                <Box sx={{ mt: 2 }}>
+                    <Typography variant="body2" sx={{ mt: 2 }}>
+                        Extra Product Images
+                    </Typography>
+                    <input
+                        type="file"
+                        multiple
+                        accept="image/*"
+                        {...register('productImages', {
+                            required: 'Minimum one and maximum Four images required'
+                        })}
+                        style={{ display: 'block' }}
+                    />
+                    {
+                        errors?.productImages &&(
+                            <Typography variant="caption" color="error">
+                            {errors?.productImages?.message}
+                        </Typography>
+                        )
+                    }
+                </Box>
+
+                {/* preview of uploaded images */}
+                {product?.productImages?.length > 0 && (
+                    <Box sx={{ mt: 2 }}>
+                        <Typography variant="body2" gutterBottom>
+                            Existing Extra Images
+                        </Typography>
+                        <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 1 }}>
+                            {product.productImages.map((img, index) => (
+                                <img
+                                    key={index}
+                                    src={`http://localhost:3005/${img.replace(/\\/g, '/')}`}
+                                    alt={`ProductImage-${index}`}
+                                    style={{ width: 70, height: 70, borderRadius: 4, objectFit: 'cover' }}
+                                />
+                            ))}
+                        </Box>
+                    </Box>
+                )}
 
                 <Box sx={{ display: 'flex', justifyContent: 'space-between', mt: 2 }}>
                     <Button

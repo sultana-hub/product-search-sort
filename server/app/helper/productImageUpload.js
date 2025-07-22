@@ -15,9 +15,9 @@ const storage = multer.diskStorage({
 const ProductImageupload = multer({ storage: storage })
 
 //handling both multiple and single images 
-const productImageFields = ProductImageupload.fields([
-  { name: 'image', maxCount: 1 },
-  { name: 'productImages', maxCount: 4 }
-]);
+// const productImageFields = ProductImageupload.fields([
+//   { name: 'image', maxCount: 1 },
+//   { name: 'productImages', maxCount: 4 }
+// ]);
 
-module.exports = productImageFields
+module.exports = ProductImageupload 

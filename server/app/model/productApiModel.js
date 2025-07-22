@@ -1,76 +1,59 @@
 
-const mongoose = require("mongoose")
-const schema = mongoose.Schema
+const mongoose = require('mongoose');
+const slugify = require('slugify');
+
 const Joi = require("joi")
 
 const productValidation = Joi.object({
-    productName: Joi.string().required().min(3),
-    productPrice: Joi.string().required().min(2),
-    productDesc: Joi.string().required().min(10),
-    productColor: Joi.array().items(Joi.string()),
-    productSize: Joi.array().items(Joi.string()),
-    brandName: Joi.string().required().min(3),
+    name: Joi.string().required().min(3),
+    category: Joi.string().required().min(3),
+    description: Joi.string().required().min(10),
     image: Joi.string().required(),
-    productImages: Joi.array().items(Joi.string())
+
 })
 
-const ProductSchema = new schema({
-    productName: {
+const ProductSchema = new mongoose.Schema({
+    name: {
         type: String,
-        require: true
-
+        required: true,
+        trim: true,
+        unique: true,
     },
-
-    productPrice: {
+    slug: {
         type: String,
-        require: true
-
-
+        unique: true,
     },
-    productDesc: {
+    category: {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: 'Category',
+        required: true,
+    },
+    description: {
         type: String,
-        require: true
-
-    },
-    productColor: {
-        type: [String],
-        require: true
-    },
-    productSize: {
-        type: [String],
-        require: true
-    },
-    status: {
-        type: Boolean,
-        require: true
-    },
-    brandName: {
-        type: String,
-        require: true
-
+        trim: true,
     },
     image: {
         type: String,
-        require: true
+        required: true,
     },
-
-    productImages: {
-        type: [String],
-        require: true
-    },
-
-    deleted: {
+    isDeleted: {
         type: Boolean,
-        default: false
+        default: false,
     },
+},
+    {
+        timestamps: true
+    });
 
-
-    deletedAt: {
-        type: Date,
-        default: null
-    }
-
-}, { timestamps: true })
-
+// Auto-generate slug before saving
+ProductSchema.pre('save', function (next) {
+    if (!this.isModified('name')) return next();
+    this.slug = slugify(this.name, { lower: true, strict: true });
+    next();
+});
 const ProductModel = mongoose.model("product", ProductSchema)
-module.exports = { ProductModel, productValidation }
+module.exports = { ProductModel, productValidation };
+
+
+
+

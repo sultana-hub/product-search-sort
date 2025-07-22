@@ -6,48 +6,42 @@ const cors = require("cors")
 const methodOverride = require('method-override');
 const path = require('path')
 const dotenv = require('dotenv').config()
-const bodyParser=require('body-parser')
-
- 
- const app=express()
-
- app.set("view engine","ejs")
- app.set("views","views")
+const bodyParser = require('body-parser')
 
 
+const app = express()
+// Fix CSP here
+app.use((req, res, next) => {
+    res.setHeader("Content-Security-Policy", "default-src * 'self' data: blob:;");
+    next();
+});
 
- dbCon()
- app.use(cors())
- app.use(express.json())
+app.set("view engine", "ejs")
+app.set("views", "views")
+
+
+
+dbCon()
+app.use(cors())
+app.use(express.json())
 //middleware
 app.use(express.urlencoded({ extended: true }))
-// app.use(bodyParser.urlencoded(
-//     {
-//         limit:'100mb',
-//         parameterLimit:"2000"
-//     }
-// ))
-// app.use(bodyParser.json({
-//         limit:'100mb',
-//         parameterLimit:"2000"
-//     }))
-
 
 //method override
 app.use(methodOverride('_method'));
 
- app.use(express.static(__dirname + '/public'));
- app.use('/uploads', express.static(path.join(__dirname, 'uploads')))
- app.use('/uploads/users', express.static(path.join(__dirname, 'uploads/users')))
- //routes
-const ProductApiRoute=require('./app/routes/productApiRoute')
-app.use('/api',ProductApiRoute)
+app.use(express.static(__dirname + '/public'));
+app.use('/uploads', express.static(path.join(__dirname, 'uploads')))
+//  app.use('/uploads/products', express.static(path.join(__dirname, 'uploads/products')))
+//routes
+// const ProductApiRoute=require('./app/routes/productApiRoute')
+// app.use('/api',ProductApiRoute)
 //users auth route
 
-const authRoute=require('./app/routes/authRoute')
-app.use('/api',authRoute)
-const port=3005
+const adminRoute = require('./app/routes/adminRoute')
+app.use('/admin', adminRoute)
+const port = 3000
 
-app.listen(port,()=>{
-console.log("server running at port :",port)
+app.listen(port, () => {
+    console.log("server running at port :", port)
 })
